@@ -1,0 +1,179 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+LINE ITEM
+----------------------------------------------------------------------------------------------------------------------
+
+This component renders a single line item product information, and is used on order and cart page.
+
+********************************************
+Supported variables
+********************************************
+
+* line_item: the line item to render (required)
+* show_desktop_quantity: if set to true (for instance on cart drawer), the quantity is also shown on the line
+{%- endcomment -%}
+
+{% liquid
+  assign max_quantity = nil
+  assign line_item_counter = line_item_counter | plus: 1
+
+  if line_item.variant.inventory_management != blank and line_item.variant.inventory_policy == 'deny'
+    assign current_quantity_for_variant = cart | item_count_for_variant: line_item.variant.id
+    assign max_quantity = line_item.variant.inventory_quantity | minus: current_quantity_for_variant | plus: line_item.quantity
+  endif
+
+  if line_item.variant.quantity_rule.max != nil
+    assign max_quantity = max_quantity | default: 999999 | at_most: line_item.variant.quantity_rule.max
+  endif
+%}
+
+<line-item class="line-item">
+  {%- if line_item.image != blank -%}
+    <div class="line-item__media-wrapper">
+      {{- line_item.image | image_url: width: line_item.image.width | image_tag: loading: 'lazy', sizes: '(max-width: 740px) 80px, 96px', widths: '80,96,160,192', class: 'line-item__media rounded-xs' -}}
+      <pill-loader class="pill-loader"></pill-loader>
+    </div>
+  {%- endif -%}
+
+  <div class="lazy-item line-item__info">
+    <div class="v-stack gap-0.5">
+      {%- if line_item.url != blank -%}
+        <a href="{{ line_item.url }}" class="bold">
+          <span class="reversed-link hover:show">{{ line_item.product.title | default: line_item.title }}</span>
+        </a>
+      {%- else -%}
+        <p class="bold">{{ line_item.product.title | default: line_item.title }}</p>
+      {%- endif -%}
+
+      {%- render 'price-list', line_item: line_item -%}
+    </div>
+
+    {%- unless line_item.product.has_only_default_variant or line_item.gift_card -%}
+      <p class="text-sm text-subdued">{{ line_item.variant.title }}</p>
+    {%- endunless -%}
+
+    {%- if line_item.selling_plan_allocation -%}
+      <p class="text-sm text-subdued">{{ line_item.selling_plan_allocation.selling_plan.name }}</p>
+    {%- endif -%}
+
+    {%- unless line_item.properties == blank -%}
+      <ul class="list-disc">
+        {%- for property in line_item.properties -%}
+          {%- assign first_character_in_key = property.first | truncate: 1, '' -%}
+
+          {%- if property.last == blank or first_character_in_key == '_' -%}
+            {%- continue -%}
+          {%- endif -%}
+
+          <li class="text-sm text-subdued">
+            {%- if property.last contains '/uploads/' -%}
+              <a href="{{ property.last }}" class="link">{{ property.last | split: '/' | last }}</a>
+            {%- else -%}
+              {{ property.first }}: {{ property.last }}
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endunless -%}
+
+    <div class="text-sm text-subdued sm:hidden">
+      {%- if line_item.url_to_remove -%}
+        <line-item-quantity class="h-stack justify-center gap-3 line-item-quantity-{{ line_item_counter }}">
+          <div class="botoes-wrapper">
+          <button class="quantity-button" data-line-key="{{ line_item.key }}" data-action="decrease">-</button>
+          <input class="quantity-input" type="number" is="quantity-input" inputmode="numeric" min="{{ line_item.variant.quantity_rule.min }}" step="{{ line_item.variant.quantity_rule.increment }}" {% if max_quantity != nil %}max="{{ max_quantity }}"{% endif %} data-line-key="{{ line_item.key }}" aria-label="{{ 'cart.order.change_quantity' | t | escape }}" value="{{ line_item.quantity }}">
+          <button class="quantity-button" data-line-key="{{ line_item.key }}" data-action="increase">+</button>
+          </div>
+
+          <div class="remove-wrapper">
+          <span class="text-xs">
+            <a href="{{ line_item.url_to_remove }}" class="link" aria-label="{{ 'cart.order.remove_with_title' | t: title: line_item.title | escape }}">
+              {{- 'cart.order.remove' | t -}}
+            </a>
+          </span>
+          </div>
+        </line-item-quantity>
+      {%- else -%}
+        {{- 'customer.order.quantity' | t }}: {{ line_item.quantity -}}
+      {%- endif -%}
+    </div>
+
+    {%- if line_item.line_level_discount_allocations != blank -%}
+      <ul class="contents" role="list">
+        {%- for discount_allocation in line_item.line_level_discount_allocations -%}
+          <li class="badge">
+            {%- render 'icon' with 'discount' -%} {{ discount_allocation.discount_application.title }} (-{{ discount_allocation.amount | money }})
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+
+  {%- if show_desktop_quantity -%}
+    <div class="line-item__actions text-subdued hidden sm:block">
+      <line-item-quantity class="v-stack gap-2 line-item-quantity-{{ line_item_counter }}">
+        <div class="botoes-wrapper">
+        <button class="quantity-button" data-line-key="{{ line_item.key }}" data-action="decrease">-</button>
+        <input class="quantity-input" type="number" is="quantity-input" inputmode="numeric" min="{{ line_item.variant.quantity_rule.min }}" step="{{ line_item.variant.quantity_rule.increment }}" {% if max_quantity != nil %}max="{{ max_quantity }}"{% endif %} data-line-key="{{ line_item.key }}" aria-label="{{ 'cart.order.change_quantity' | t | escape }}" value="{{ line_item.quantity }}">
+        <button class="quantity-button" data-line-key="{{ line_item.key }}" data-action="increase">+</button>
+        </div>
+
+        <div class="remove-wrapper">
+        <span class="text-xs text-center">
+          <a href="{{ line_item.url_to_remove }}" class="link" aria-label="{{ 'cart.order.remove_with_title' | t: title: line_item.title | escape }}">
+            {{- 'cart.order.remove' | t -}}
+          </a>
+        </span>
+        </div>
+      </line-item-quantity>
+    </div>
+  {%- endif -%}
+</line-item>
+
+<script>
+  let lineItemCounter = 0;
+
+  document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('quantity-button')) {
+      var action = event.target.dataset.action;
+
+      // Encontra o input relacionado ao botão clicado
+      var input = event.target.closest('line-item-quantity').querySelector('.quantity-input');
+      
+      // Obtém a quantidade atual e o incremento
+      var currentQuantity = parseInt(input.value, 10);
+      var step = parseInt(input.getAttribute('step'), 10) || 1;
+
+      // Atualiza a quantidade no input com base no botão clicado
+      if (action === 'increase') {
+        input.value = currentQuantity + step;
+      } else if (action === 'decrease' && currentQuantity > parseInt(input.min, 10)) {
+        input.value = currentQuantity - step;
+      }
+
+      // Dispara o evento 'change' apenas para o input específico modificado
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+
+  // Atualiza o valor do input manualmente (se o usuário digitar diretamente no campo)
+  document.addEventListener('change', function(event) {
+    if (event.target.classList.contains('quantity-input')) {
+      var input = event.target;
+      var newQuantity = parseInt(input.value, 10);
+
+      // Garante que o valor seja válido e não menor que o mínimo permitido
+      if (isNaN(newQuantity) || newQuantity < parseInt(input.min, 10)) {
+        input.value = parseInt(input.min, 10);
+      }
+    }
+  });
+
+  // Incrementa o contador para cada linha do item renderizado
+  document.querySelectorAll('line-item').forEach(function(item) {
+    lineItemCounter++;
+    item.querySelector('.line-item-quantity-' + lineItemCounter).classList.add('unique-' + lineItemCounter);
+  });
+</script>
+
+

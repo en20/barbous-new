@@ -1,0 +1,71 @@
+{%- comment -%}
+
+----------------------------------------------------------------------------------------------------------------------
+
+MULTI-REWARD PROGRESS BAR
+
+----------------------------------------------------------------------------------------------------------------------
+
+Renders the multi-reward progress bar component. It is used on cart page and cart drawer to render the remaining amount before being eligible for different rewards.
+
+********************************************
+Supported variables
+********************************************
+
+* size: accept the value "sm"
+{%- endcomment -%}
+
+{%- liquid
+  assign calculated_total_price = 0
+
+  for line_item in cart.items
+    if line_item.requires_shipping
+      assign calculated_total_price = calculated_total_price | plus: line_item.final_line_price
+    endif
+  endfor
+
+  # Remove cart level discount from the calculated amount
+  assign total_cart_discount = 0
+
+  for discount_application in cart.cart_level_discount_applications
+    assign total_cart_discount = total_cart_discount | plus: discount_application.total_allocated_amount
+  endfor
+
+  assign calculated_total_price = calculated_total_price | minus: total_cart_discount
+
+  # Define thresholds for different rewards
+  assign perfume_threshold = 12900
+  assign brush_threshold = 17900
+  assign bag_threshold = 29900
+
+  # Determine current status and set appropriate messages and progress
+  if calculated_total_price < perfume_threshold
+    assign next_threshold = perfume_threshold
+    assign unreached_message = "Faltam apenas {{ next_threshold | minus: calculated_total_price | money }} para ganhar um brinde! 🎁"
+  elsif calculated_total_price < brush_threshold
+    assign next_threshold = brush_threshold
+    assign unreached_message = "Você ganhou um brinde, agora faltam apenas {{ next_threshold | minus: calculated_total_price | money }}  para ganhar seu segundo brinde! 🎁🎁"
+  elsif calculated_total_price < bag_threshold
+    assign next_threshold = bag_threshold
+    assign unreached_message = "Você ganhou dois brindes, agora faltam apenas {{ next_threshold | minus: calculated_total_price | money }} para ganhar o seu terceiro brinde! 🎁🎁🎁"
+  else
+    assign next_threshold = 0
+    assign reached_message = "Você já conquistou todos os brindes desta compra! 🎁🎁🎁"
+  endif
+
+  # Calculate progress percentage
+  if next_threshold > 0
+    assign progress = calculated_total_price | divided_by: next_threshold | times: 100
+  else
+    assign progress = 100
+  endif
+-%}
+
+{%- if cart.requires_shipping -%}
+  <free-shipping-bar class="lazy-item free-shipping-bar" threshold="{{ next_threshold }}" total-price="{{ calculated_total_price }}" reached-message="{% if next_threshold == 0 %}{{ reached_message }}{% endif %}" unreached-message="{% if next_threshold > 0 %}{{ unreached_message }}{% endif %}">
+    {%- comment -%}The span below is the placeholder where the content will be inserted in JS{%- endcomment -%}
+    <span>&nbsp;</span>
+
+    <progress-bar class="progress-bar" role="progressbar" aria-valuemin="0" style="--progress: {{ progress }}"></progress-bar>
+  </free-shipping-bar>
+{%- endif -%}

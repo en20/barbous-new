@@ -1,0 +1,76 @@
+<!-- Modal -->
+<div
+  id="inspirationModal"
+  class="modal"
+  style="display:none; position:fixed; z-index:2147483647; left:50%; top:0; transform:translateX(-50%); width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.4); transition: opacity 0.3s ease;"
+>
+  <div
+    class="modal-content"
+    style="background-color:#fefefe; margin:160px auto; padding:30px; border:1px solid #888; width:90%; line-height:1.6; position:relative;"
+  >
+    <span
+      class="close"
+      onclick="toggleModal('inspirationModal')"
+      style="color:#000; position:absolute; top:5px; right:10px; font-size:28px; font-weight:bold; cursor:pointer;"
+      >&times;</span
+    >
+    <h2 style="margin-bottom: 20px;">
+      <strong>Nota de Esclarecimento sobre Referências Olfativas - Barbour's Beauty</strong>
+    </h2>
+    <p style="margin-bottom: 20px;">
+      Na Barbour's Beauty, desenvolvemos produtos com inspirações olfativas únicas, criados para proporcionar
+      experiências sensoriais distintas e enriquecedoras aos nossos clientes. É importante ressaltar que qualquer menção
+      a outras marcas ou produtos em nossas comunicações visa exclusivamente oferecer uma referência olfativa que
+      facilite a identificação das características aromáticas de nossos produtos.
+    </p>
+    <h3 style="margin-bottom: 15px;"><strong>Esclarecimentos Importantes:</strong></h3>
+    <ul style="margin-bottom: 20px; padding-left: 20px;">
+      <li style="margin-bottom: 10px;">
+        <strong>Independência da Marca:</strong> A Barbour's Beauty não possui vínculos com quaisquer outras marcas ou
+        produtos mencionados. As referências são utilizadas estritamente para fins de contextualização olfativa.
+      </li>
+      <li style="margin-bottom: 10px;">
+        <strong>Propriedade das Marcas:</strong> Todas as marcas ou produtos mencionados pertencem a seus respectivos
+        fabricantes e desenvolvedores.
+      </li>
+      <li style="margin-bottom: 10px;">
+        <strong>Uso de Referências:</strong> O uso de descrições olfativas similares é uma ferramenta para enriquecer a
+        experiência do consumidor, oferecendo uma noção preliminar dos aromas, sem sugerir similitude completa com
+        produtos de outras marcas.
+      </li>
+      <li style="margin-bottom: 10px;">
+        <strong>Canais Digitais:</strong> Nossos canais digitais, incluindo nosso website e perfis em redes sociais como
+        Facebook, TikTok e Instagram, operam de forma independente e não mantêm vínculos comerciais ou legais com as
+        marcas mencionadas.
+      </li>
+      <li style="margin-bottom: 10px;">
+        <strong>Inspiração Criativa:</strong> A menção de "inspiração olfativa" não constitui promessa de resultados
+        idênticos ou similares aos de outros produtos no mercado. Cada composição olfativa da Barbour's Beauty é uma
+        criação exclusiva, com direção artística própria.
+      </li>
+    </ul>
+    <h3 style="margin-bottom: 15px;"><strong>Compromisso com a Qualidade e Transparência:</strong></h3>
+    <p>
+      Na Barbour's Beauty, estamos comprometidos em oferecer produtos de alta qualidade, com fragrâncias exclusivas que
+      verdadeiramente capturam a essência de nossa marca. Nosso objetivo é sempre assegurar transparência e clareza para
+      nossos clientes, garantindo uma experiência de compra autêntica e satisfatória.
+    </p>
+  </div>
+</div>
+
+<script>
+  function toggleModal(modalId) {
+    var modal = document.getElementById(modalId);
+    if (modal.style.display === 'block') {
+      modal.style.opacity = 0;
+      setTimeout(function () {
+        modal.style.display = 'none';
+      }, 300);
+    } else {
+      modal.style.display = 'block';
+      setTimeout(function () {
+        modal.style.opacity = 1;
+      }, 10);
+    }
+  }
+</script>
