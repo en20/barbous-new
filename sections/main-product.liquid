@@ -7,6 +7,8 @@
     --product-gallery-media-list-gap: {% if section.settings.mobile_media_size == 'expanded' %}var(--spacing-0-5){% else %}var(--grid-gutter){% endif %};
   }
 
+ 
+
   @media screen and (max-width: 999px) {
     #shopify-section-{{ section.id }} {
       --section-spacing-block-start: {% if section.settings.mobile_media_size == 'expanded' %}0px{% else %}var(--container-gutter){% endif %};
@@ -58,6 +60,14 @@
         product_form_id: product_form_id,
         context: 'main_product'
       -%}
+
+      {%- comment -%}Render upsell banner block if it exists{%- endcomment -%}
+      {%- assign upsell_banner_block = section.blocks | where: 'type', 'upsell_banner' | first -%}
+      {%- if upsell_banner_block != blank -%}
+        <div class="product-info-container">
+          {%- render 'upsell-banner', block: upsell_banner_block -%}
+        </div>
+      {%- endif -%}
     </div>
   </product-rerender>
 </div>
@@ -1148,6 +1158,17 @@
             }
           ],
           "default": "start"
+        }
+      ]
+    },
+    {
+      "type": "upsell_banner",
+      "name": "Upsell Banner",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Displays a customizable upsell banner to promote related products."
         }
       ]
     }

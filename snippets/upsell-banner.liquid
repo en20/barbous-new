@@ -1,0 +1,622 @@
+<style>
+    /* Modal styles */
+    
+    .upsell-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+  
+    .upsell-modal.active {
+      display: flex;
+    }
+  
+    .upsell-modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 90%;
+      width: 600px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+  
+    .upsell-modal-close {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #111e4d;
+    }
+  
+    .upsell-modal-image {
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto 20px;
+      display: block;
+    }
+  
+    .upsell-modal-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #111e4d;
+      margin-bottom: 15px;
+    }
+  
+    .upsell-modal-price {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111e4d;
+      margin-bottom: 15px;
+    }
+  
+    .upsell-modal-description {
+      margin-bottom: 20px;
+      color: #111e4d;
+    }
+  
+    .upsell-modal-button {
+      background-color: #ffff00;
+      color: #111e4d;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 12px 24px;
+      text-align: center;
+      border-radius: 50px;
+      border: 2px solid #111e4d;
+      text-decoration: none;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      display: inline-block;
+      cursor: pointer;
+    }
+  
+    .upsell-modal-button:hover {
+      background-color: #ffeb3b;
+      transform: scale(1.05);
+    }
+  
+    .upsell-product-card {
+      border-radius: 15px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      background-color: #f8f8f8; /* Default fallback */
+    }
+    .upsell-product-title {
+      font-weight: 900;
+      overflow: visible;
+      position: relative;
+      z-index: 2;
+      font-size: 20px;
+      margin: 0;
+      padding: 0;
+      line-height: 1.2;
+    }
+    .upsell-product-title-a {
+      font-weight: 900;
+      overflow: visible;
+      position: relative;
+      z-index: 3;
+      font-size: 20px;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      line-height: 1.2;
+    }
+    .upsell-product-title-b {
+      font-weight: 900;
+      overflow: visible;
+      position: relative;
+      z-index: 3;
+      font-size: 20px;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      line-height: 1.2;
+    }
+    @media (min-width: 768px) {
+      .upsell-product-images {
+        margin-right: 24px;
+      }
+    }
+    .upsell-product-content {
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      width: 100%;
+    }
+    @media (max-width: 768px) {
+      .upsell-product-info:not(:has(.upsell-product-description)) {
+        transform: none;
+      }
+      .upsell-product-info {
+        margin-top: 0;
+        padding-top: 0;
+      }
+      .upsell-product-title,
+      .upsell-product-title-a,
+      .upsell-product-title-b {
+        max-width: 70%;
+        letter-spacing: -0.3px;
+      }
+      .title {
+        max-width: 70%;
+      }
+    }
+  
+    .upsell-product-images img {
+      border: 2px solid #000000;
+      border-radius: 10px;
+    }
+    .upsell-product-images {
+      flex-shrink: 0;
+      margin-right: 16px;
+    }
+    .upsell-product-info {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      gap: 0;
+    }
+  
+    .pottd-button-upsell {
+      font-size: 11px;
+      position: absolute;
+      right: 50px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      width: 100px;
+      color: #ffff;
+      font-weight: bold;
+      padding: 8px 16px;
+      text-align: center;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+  
+    .pottd-button-upsell:hover {
+      transform: translateY(-50%) scale(1.05);
+    }
+  
+    .upsell-product-button {
+      background-color: #ffff00;
+      color: #111e4d;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 10px 20px;
+      text-align: center;
+      border-radius: 50px;
+      border: 2px solid #111e4d;
+      text-decoration: none;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+  
+    .upsell-product-button:hover {
+      background-color: #ffeb3b;
+      transform: scale(1.05);
+    }
+    .upsell-product-price {
+      position: relative;
+    }
+  
+    .upsell-product-description {
+      width: 50%;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    @media (min-width: 768px) and (max-width: 1024px) {
+      .upsell-product-title-a {
+        font-size: 16px;
+      }
+    }
+   
+    @media (max-width: 1280px) {
+      .upsell-product-title-a {
+        top: 0;
+        font-weight: 900;
+        overflow: visible;
+        position: relative;
+        z-index: 3;
+        font-size: 16px;
+        max-width: none;
+      }
+      .pottd-button-upsell {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        width: 100px;
+        font-size: 10px;
+      }
+      .upsell-product-title {
+        font-size: 16px;
+      }
+      .upsell-product-title-a {
+        max-width: 75%;
+      }
+      .text-price {
+        font-size: 16px;
+      }
+      .title {
+        font-size: 16px;
+      }
+    }
+    .text-price {
+      font-size: 16px;
+      font-weight: 900;
+    }
+    .title {
+      font-size: 22px;
+    }
+  
+    .hidden-modal-button {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    
+  
+    @media (min-width: 320px) and (max-width: 375px) {
+      .upsell-product-title-a {
+        font-size: 14px;
+        text-align: center;
+        width: 100%;
+      }
+      .upsell-product-title {
+        font-size: 14px;
+        text-align: center;
+        width: 100%;
+      }
+      .text-price {
+        font-size: 14px;
+        text-align: center;
+      }
+      .title {
+        font-size: 14px;
+        text-align: center;
+      }
+      .upsell-product-description {
+        font-size: 12px !important;
+        text-align: center;
+        width: 100%;
+      }
+      .pottd-button-upsell {
+        position: static;
+        width: 100%;
+        font-size: 12px;
+        right: auto;
+        transform: none;
+        margin-top: 12px;
+        display: block;
+      }
+      .upsell-product-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .upsell-product-images {
+        margin-right: 0;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: center;
+      }
+      .upsell-product-info {
+        align-items: center;
+        width: 100%;
+        text-align: center;
+      }
+      .upsell-product-price {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        gap: 8px;
+      }
+      .upsell-product-price .tw-line-through {
+        margin-right: 8px;
+      }
+      .tw-mb-2.tw-mt-2 {
+        text-align: left;
+        padding: 0 10px;
+      }
+      .tw-mb-2.tw-mt-2 h1 {
+        font-size: 16px;
+        text-align: left;
+        width: 100%;
+        display: block;
+      }
+    }
+    @media (min-width: 750px) and (max-width: 840px) {
+      .upsell-product-title-a {
+        font-size: 14px;
+      }
+      .upsell-product-title {
+        font-size: 14px;
+      }
+      .text-price {
+        font-size: 14px;
+      }
+      .title {
+        font-size: 14px;
+      }
+      .upsell-product-description {
+        font-size: 12px !important;
+      }
+      .pottd-button-upsell {
+        width: 30%;
+        font-size: 10px;
+        right: 5px;
+      }
+    }
+  
+    /* Add new styles for screens between 376px and 480px */
+    @media (min-width: 376px) and (max-width: 480px) {
+      .upsell-product-title-a,
+      .upsell-product-title {
+        font-size: 11px;
+        max-width: 175px; /* Increased from 100px to allow ~20 characters */
+        letter-spacing: -0.3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+      }
+      .text-price {
+        font-size: 12px;
+      }
+      .title {
+        font-size: 12px;
+        max-width: 70%;
+      }
+      .upsell-product-description {
+        font-size: 12px !important;
+        width: 100%;
+      }
+    }
+  
+    /* Add margin to buy button for mobile devices */
+    @media (max-width: 767px) {
+      .pottd-button-upsell {
+        margin-top: 4px;
+      }
+    }
+  
+    /* For screens between 376px and 480px */
+    @media (min-width: 376px) and (max-width: 480px) {
+      .pottd-button-upsell {
+        position: absolute;
+        top: 52%; /* Moved down slightly from 50% */
+        transform: translateY(-50%);
+      }
+    }
+  </style>
+  
+  {% assign upsell_product_handle = product.metafields.custom._all_fields_upsell_banner_.value.product %}
+  
+  {% if upsell_product_handle %}
+    {% assign upsell_product = all_products[upsell_product_handle] %}
+    {% if upsell_product %}
+      {%- liquid
+        assign section_id = 'upsell-' | append: upsell_product.id
+      -%}
+      
+      <!-- Add CTA title outside the card -->
+      
+      <div class="tw-mb-2 tw-mt-2">
+        <h1 class="tw-text-[18px] lg:tw-text-[20px] tw-font-extrabold tw-text-[#111e4d] upsell-product-title-b">
+          {% if product.metafields.custom._all_fields_upsell_banner_.value.texto_acima_do_banner %}
+            {{ product.metafields.custom._all_fields_upsell_banner_.value.texto_acima_do_banner }}
+          {% endif %}
+        </h1>
+      </div>
+     
+      
+      <div class="upsell-product-card tw-mb-4" 
+           {% if product.metafields.custom._all_fields_upsell_banner_.value.background_color %}
+             style="background-color: {{ product.metafields.custom._all_fields_upsell_banner_.value.background_color }};"
+           {% elsif product.metafields.custom._all_fields_upsell_banner_.value.upsell_banner_background_color %}
+             style="background-color: {{ product.metafields.custom._all_fields_upsell_banner_.value.upsell_banner_background_color }};"
+           {% else %}
+             style="background-color: #f8f8f8;" 
+           {% endif %}
+      >
+        <div class="quick-add no-js-hidden">
+          {%- liquid
+            assign product_form_id = 'quick-add-' | append: section_id | append: upsell_product.id
+            assign qty_rules = false
+            if upsell_product.selected_or_first_available_variant.quantity_rule.min > 1 or upsell_product.selected_or_first_available_variant.quantity_rule.max != null or upsell_product.selected_or_first_available_variant.quantity_rule.increment > 1
+              assign qty_rules = true
+            endif
+          -%}
+          <div
+            class="upsell-product-content tw-flex tw-flex-row tw-justify-start tw-items-center"
+            style="position: relative;"
+          >
+            <div class="upsell-product-images tw-flex tw-flex-col tw-justify-start tw-items-center">
+              <a href="{{ upsell_product.url }}" class="tw-text-decoration-none">
+                <img
+                  class="lg:!tw-w-[150px] !tw-w-[100px]"
+                  src="{{ upsell_product.images[0] | image_url }}"
+                  alt="{{ upsell_product.title }} - Image 1"
+                  width="90"
+                  height="90"
+                >
+              </a>
+            </div>
+            <div class="upsell-product-info">
+              <h2 class="upsell-product-title-a">
+                <a href="{{ upsell_product.url }}" class="tw-text-decoration-none">
+                  {{ upsell_product.title }}
+                </a>
+              </h2>
+  
+              <div class="tw-flex tw-flex-row tw-justify-start tw-items-center tw-gap-2 upsell-product-price">
+                {% if upsell_product.compare_at_price_max > upsell_product.price %}
+                  <span class="tw-line-through tw-text-[10px] lg:!tw-text-[12px] tw-font-extrabold" style="text-decoration: line-through;">
+                    {{ upsell_product.compare_at_price_max | money_without_trailing_zeros }}
+                  </span>
+                {% endif %}
+                <h7 class="tw-text-[12px] lg:!tw-text-[16px] tw-font-extrabold text-price tw-text-[#111e4d]">
+                  {{ upsell_product.price | money_without_trailing_zeros }}
+                </h7>
+              </div>
+              {% if product.metafields.custom._all_fields_upsell_banner_.value.bullet_points_title %}
+                <p class="tw-text-[10px] lg:!tw-text-[15px] upsell-product-description">
+                  {{- product.metafields.custom._all_fields_upsell_banner_.value.bullet_points_title -}}
+                </p>
+              {% endif %}
+              {% if product.metafields.custom._all_fields_upsell_banner_.value.bullet_points %}
+                <p class="tw-text-[10px] lg:!tw-text-[15px] upsell-product-description tw-line-clamp-3">
+                  {{-
+                    product.metafields.custom._all_fields_upsell_banner_.value.bullet_points
+                    | remove: '["'
+                    | remove: '"]'
+                    | remove: '"'
+                  -}}
+                </p>
+              {% endif %}
+            </div>
+  
+            {% assign has_multiple_variants = false %}
+            {% if upsell_product.variants.size > 1 %}
+              {% assign has_multiple_variants = true %}
+            {% endif %}
+            <button
+              class="pottd-button-upsell"
+              data-variant-id="{{ upsell_product.variants.first.id }}"
+              data-has-variants="{{ has_multiple_variants }}"
+              data-product-url="{{ upsell_product.url }}"
+              onclick="handleUpsellButton(this)"
+              {% if product.metafields.custom._all_fields_upsell_banner_.value.button_color %}
+                style="background-color: {{ product.metafields.custom._all_fields_upsell_banner_.value.button_color }};"
+              {% endif %}
+            >
+              COMPRAR
+            </button>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Upsell Modal -->
+      <div id="upsellModal-{{ section_id }}" class="upsell-modal">
+        <div class="upsell-modal-content">
+          <button class="upsell-modal-close" onclick="closeUpsellModal('{{ section_id }}')">&times;</button>
+          {% if upsell_product.featured_media != blank %}
+            <img
+              class="upsell-modal-image"
+              src="{{ upsell_product.featured_media | image_url: width: 300 }}"
+              alt="{{ upsell_product.title }}"
+              width="300"
+              height="300"
+              loading="lazy"
+            >
+          {% endif %}
+          <h2 class="upsell-modal-title">{{ upsell_product.title }}</h2>
+          <div class="upsell-modal-price">
+            {% if upsell_product.compare_at_price_max > upsell_product.price %}
+              <span class="tw-line-through tw-mr-2" style="text-decoration: line-through;">
+                {{ upsell_product.compare_at_price_max | money_without_trailing_zeros }}
+              </span>
+            {% endif %}
+            <span>{{ upsell_product.price | money_without_trailing_zeros }}</span>
+          </div>
+          <div class="upsell-modal-description">
+            {{ upsell_product.description }}
+          </div>
+          <button
+            class="upsell-modal-button"
+            data-variant-id="{{ upsell_product.variants.first.id }}"
+            data-has-variants="{{ has_multiple_variants }}"
+            data-product-url="{{ upsell_product.url }}"
+            onclick="handleUpsellButton(this)"
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
+  
+      <script>
+        function handleUpsellButton(button) {
+          const hasVariants = button.getAttribute('data-has-variants') === 'true';
+          const productUrl = button.getAttribute('data-product-url');
+  
+          if (hasVariants) {
+            window.location.href = productUrl;
+            return;
+          }
+  
+          addToCart(button);
+        }
+  
+        function addToCart(button) {
+          const variantId = button.getAttribute('data-variant-id');
+          if (!variantId) {
+            return;
+          }
+  
+          fetch('/cart/add.js', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: variantId, quantity: 1 }),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error('Erro ao adicionar ao carrinho');
+              }
+              return response.json();
+            })
+            .then((data) => {
+              console.log('Carrinho:', data);
+            })
+            .catch((error) => {
+              console.error('Erro:', error);
+            });
+        }
+  
+        function openUpsellModal(sectionId) {
+          document.getElementById('upsellModal-' + sectionId).classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+  
+        function closeUpsellModal(sectionId) {
+          document.getElementById('upsellModal-' + sectionId).classList.remove('active');
+          document.body.style.overflow = '';
+        }
+  
+        // Close modal when clicking outside
+        document.addEventListener('click', function (event) {
+          const modals = document.getElementsByClassName('upsell-modal');
+          for (let modal of modals) {
+            if (event.target === modal) {
+              modal.classList.remove('active');
+              document.body.style.overflow = '';
+            }
+          }
+        });
+      </script>
+    {% endif %}
+  {% endif %}
+  
