@@ -500,6 +500,11 @@
               {%- render 'icon' with 'share' -%} {{- 'general.social.share' | t -}}
             </button>
           </div>
+
+        {%- when 'upsell_banner' -%}
+          <div class="product-info__upsell-banner">
+            {%- render 'upsell-banner' -%}
+          </div>
       {%- endcase -%}
     {%- endcapture -%}
 

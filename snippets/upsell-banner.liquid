@@ -375,7 +375,7 @@
       .upsell-product-title-a,
       .upsell-product-title {
         font-size: 11px;
-        max-width: 175px; /* Increased from 100px to allow ~20 characters */
+        max-width: 125px; /* Increased from 100px to allow ~20 characters */
         letter-spacing: -0.3px;
         white-space: nowrap;
         overflow: hidden;
@@ -408,6 +408,17 @@
         position: absolute;
         top: 52%; /* Moved down slightly from 50% */
         transform: translateY(-50%);
+      }
+    }
+
+    @media screen and (min-width: 640px) {
+      .upsell-product-title-a a {
+        display: inline-block;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 35ch;
       }
     }
   </style>

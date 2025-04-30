@@ -60,14 +60,7 @@
         product_form_id: product_form_id,
         context: 'main_product'
       -%}
-
-      {%- comment -%}Render upsell banner block if it exists{%- endcomment -%}
-      {%- assign upsell_banner_block = section.blocks | where: 'type', 'upsell_banner' | first -%}
-      {%- if upsell_banner_block != blank -%}
-        <div class="product-info-container">
-          {%- render 'upsell-banner', block: upsell_banner_block -%}
-        </div>
-      {%- endif -%}
+      
     </div>
   </product-rerender>
 </div>
