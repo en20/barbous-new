@@ -1,91 +1,4 @@
 <style>
-    /* Modal styles */
-    
-    .upsell-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-  
-    .upsell-modal.active {
-      display: flex;
-    }
-  
-    .upsell-modal-content {
-      background-color: white;
-      padding: 20px;
-      border-radius: 15px;
-      max-width: 90%;
-      width: 600px;
-      position: relative;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-  
-    .upsell-modal-close {
-      position: absolute;
-      right: 20px;
-      top: 20px;
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #111e4d;
-    }
-  
-    .upsell-modal-image {
-      width: 100%;
-      max-width: 300px;
-      margin: 0 auto 20px;
-      display: block;
-    }
-  
-    .upsell-modal-title {
-      font-size: 24px;
-      font-weight: 900;
-      color: #111e4d;
-      margin-bottom: 15px;
-    }
-  
-    .upsell-modal-price {
-      font-size: 20px;
-      font-weight: 700;
-      color: #111e4d;
-      margin-bottom: 15px;
-    }
-  
-    .upsell-modal-description {
-      margin-bottom: 20px;
-      color: #111e4d;
-    }
-  
-    .upsell-modal-button {
-      background-color: #ffff00;
-      color: #111e4d;
-      font-size: 16px;
-      font-weight: bold;
-      padding: 12px 24px;
-      text-align: center;
-      border-radius: 50px;
-      border: 2px solid #111e4d;
-      text-decoration: none;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-      display: inline-block;
-      cursor: pointer;
-    }
-  
-    .upsell-modal-button:hover {
-      background-color: #ffeb3b;
-      transform: scale(1.05);
-    }
-  
     .upsell-product-card {
       border-radius: 15px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -393,6 +306,12 @@
         font-size: 12px !important;
         width: 100%;
       }
+      .pottd-button-upsell {
+        position: absolute;
+        top: 52%; /* Moved down slightly from 50% */
+        transform: translateY(-50%);
+        right: 15px; /* Moved more to the right (from 50px to 15px) */
+      }
     }
   
     /* Add margin to buy button for mobile devices */
@@ -402,15 +321,6 @@
       }
     }
   
-    /* For screens between 376px and 480px */
-    @media (min-width: 376px) and (max-width: 480px) {
-      .pottd-button-upsell {
-        position: absolute;
-        top: 52%; /* Moved down slightly from 50% */
-        transform: translateY(-50%);
-      }
-    }
-
     @media screen and (min-width: 640px) {
       .upsell-product-title-a a {
         display: inline-block;
@@ -419,6 +329,46 @@
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: 35ch;
+      }
+    }
+  
+    /* Styles for the buy button in upsell banner */
+    .upsell-buy-button .buy-buttons {
+      width: 100%;
+    }
+    
+    .upsell-buy-button .button {
+      font-size: 11px;
+      font-weight: bold;
+      padding: 8px 16px;
+      text-align: center;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      width: 100%;
+      color: #ffff;
+    }
+    
+    .upsell-buy-button .button:hover {
+      transform: scale(1.05);
+    }
+    
+    @media (max-width: 480px) {
+      .upsell-buy-button {
+        right: 5px !important; /* Moved even more to the right for mobile (from 15px to 5px) */
+      }
+      
+      .upsell-buy-button .button {
+        font-size: 10px;
+      }
+    }
+    
+    @media (min-width: 320px) and (max-width: 375px) {
+      .upsell-buy-button {
+        position: static !important;
+        width: 100% !important;
+        transform: none !important;
+        margin-top: 12px;
       }
     }
   </style>
@@ -430,6 +380,7 @@
     {% if upsell_product %}
       {%- liquid
         assign section_id = 'upsell-' | append: upsell_product.id
+        assign upsell_form_id = 'upsell-form-' | append: upsell_product.id
       -%}
       
       <!-- Add CTA title outside the card -->
@@ -513,121 +464,69 @@
             {% if upsell_product.variants.size > 1 %}
               {% assign has_multiple_variants = true %}
             {% endif %}
-            <button
-              class="pottd-button-upsell"
-              data-variant-id="{{ upsell_product.variants.first.id }}"
-              data-has-variants="{{ has_multiple_variants }}"
-              data-product-url="{{ upsell_product.url }}"
-              onclick="handleUpsellButton(this)"
-              {% if product.metafields.custom._all_fields_upsell_banner_.value.button_color %}
-                style="background-color: {{ product.metafields.custom._all_fields_upsell_banner_.value.button_color }};"
-              {% endif %}
-            >
-              COMPRAR
-            </button>
-          </div>
-        </div>
-      </div>
-  
-      <!-- Upsell Modal -->
-      <div id="upsellModal-{{ section_id }}" class="upsell-modal">
-        <div class="upsell-modal-content">
-          <button class="upsell-modal-close" onclick="closeUpsellModal('{{ section_id }}')">&times;</button>
-          {% if upsell_product.featured_media != blank %}
-            <img
-              class="upsell-modal-image"
-              src="{{ upsell_product.featured_media | image_url: width: 300 }}"
-              alt="{{ upsell_product.title }}"
-              width="300"
-              height="300"
-              loading="lazy"
-            >
-          {% endif %}
-          <h2 class="upsell-modal-title">{{ upsell_product.title }}</h2>
-          <div class="upsell-modal-price">
-            {% if upsell_product.compare_at_price_max > upsell_product.price %}
-              <span class="tw-line-through tw-mr-2" style="text-decoration: line-through;">
-                {{ upsell_product.compare_at_price_max | money_without_trailing_zeros }}
-              </span>
+            
+            {% if has_multiple_variants %}
+              <a 
+                href="{{ upsell_product.url }}" 
+                class="pottd-button-upsell"
+                {% if product.metafields.custom._all_fields_upsell_banner_.value.button_color %}
+                  style="background-color: {{ product.metafields.custom._all_fields_upsell_banner_.value.button_color }};"
+                {% endif %}
+              >
+                COMPRAR
+              </a>
+            {% else %}
+              <div class="upsell-buy-button" style="position: absolute; right: 50px; top: 50%; transform: translateY(-50%); z-index: 10; width: 100px;">
+                {%- render 'buy-buttons', product: upsell_product, form_id: upsell_form_id, show_payment_button: true, button_personalized_content: 'Comprar', show_cart_icon: true -%}
+              </div>
             {% endif %}
-            <span>{{ upsell_product.price | money_without_trailing_zeros }}</span>
           </div>
-          <div class="upsell-modal-description">
-            {{ upsell_product.description }}
-          </div>
-          <button
-            class="upsell-modal-button"
-            data-variant-id="{{ upsell_product.variants.first.id }}"
-            data-has-variants="{{ has_multiple_variants }}"
-            data-product-url="{{ upsell_product.url }}"
-            onclick="handleUpsellButton(this)"
-          >
-            Add to Cart
-          </button>
         </div>
       </div>
   
-      <script>
-        function handleUpsellButton(button) {
-          const hasVariants = button.getAttribute('data-has-variants') === 'true';
-          const productUrl = button.getAttribute('data-product-url');
-  
-          if (hasVariants) {
-            window.location.href = productUrl;
-            return;
+      {% unless has_multiple_variants %}
+      <style>
+        /* Styles for the buy button in upsell banner */
+        .upsell-buy-button .buy-buttons {
+          width: 100%;
+        }
+        
+        .upsell-buy-button .button {
+          font-size: 11px;
+          font-weight: bold;
+          padding: 8px 16px;
+          text-align: center;
+          border-radius: 8px;
+          text-decoration: none;
+          transition: background-color 0.3s ease, transform 0.3s ease;
+          width: 100%;
+          color: #ffff;
+        }
+        
+        .upsell-buy-button .button:hover {
+          transform: scale(1.05);
+        }
+        
+        @media (max-width: 480px) {
+          .upsell-buy-button {
+            right: 5px !important; /* Moved even more to the right for mobile (from 15px to 5px) */
           }
-  
-          addToCart(button);
-        }
-  
-        function addToCart(button) {
-          const variantId = button.getAttribute('data-variant-id');
-          if (!variantId) {
-            return;
+          
+          .upsell-buy-button .button {
+            font-size: 10px;
           }
-  
-          fetch('/cart/add.js', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id: variantId, quantity: 1 }),
-          })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error('Erro ao adicionar ao carrinho');
-              }
-              return response.json();
-            })
-            .then((data) => {
-              console.log('Carrinho:', data);
-            })
-            .catch((error) => {
-              console.error('Erro:', error);
-            });
         }
-  
-        function openUpsellModal(sectionId) {
-          document.getElementById('upsellModal-' + sectionId).classList.add('active');
-          document.body.style.overflow = 'hidden';
-        }
-  
-        function closeUpsellModal(sectionId) {
-          document.getElementById('upsellModal-' + sectionId).classList.remove('active');
-          document.body.style.overflow = '';
-        }
-  
-        // Close modal when clicking outside
-        document.addEventListener('click', function (event) {
-          const modals = document.getElementsByClassName('upsell-modal');
-          for (let modal of modals) {
-            if (event.target === modal) {
-              modal.classList.remove('active');
-              document.body.style.overflow = '';
-            }
+        
+        @media (min-width: 320px) and (max-width: 375px) {
+          .upsell-buy-button {
+            position: static !important;
+            width: 100% !important;
+            transform: none !important;
+            margin-top: 12px;
           }
-        });
-      </script>
+        }
+      </style>
+      {% endunless %}
     {% endif %}
   {% endif %}
   
